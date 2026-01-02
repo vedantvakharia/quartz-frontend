@@ -63,6 +63,21 @@ export const formatDNORegionName = (regionName: string) => {
   return regionName;
 };
 
+/**
+ * Extracts ID from JSON string fields (dno, gsp)
+ * Example: "{\"dno_id\": \"10\"}" => "10"
+ */
+const extractIdFromJsonString = (jsonString: string, idKey: string): string => {
+  try {
+    const parsed = JSON.parse(jsonString);
+    return parsed[idKey]?.toString() || "";
+  } catch {
+    // If parsing fails, try simple string matching as fallback
+    const match = jsonString.match(new RegExp(`"${idKey}":\\s*"([^"]+)"`));
+    return match ? match[1] : "";
+  }
+};
+
 export const useAggregateSitesDataForTimestamp = (
   combinedSitesData: CombinedSitesData,
   selectedISOTime: string

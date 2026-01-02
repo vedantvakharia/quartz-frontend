@@ -101,9 +101,9 @@ type CombinedData = {
   // TODO: slight mashup of custom and generated types atm,
   //  ideally should be able to use just the generated for API typings
   allGspForecastData:
-    | GspAllForecastData
-    | components["schemas"]["OneDatetimeManyForecastValues"][]
-    | undefined;
+  | GspAllForecastData
+  | components["schemas"]["OneDatetimeManyForecastValues"][]
+  | undefined;
   allGspRealData: AllGspRealData | components["schemas"]["GSPYieldGroupByDatetime"][] | undefined;
   gspDeltas: Map<string, GspDeltaValue> | undefined;
 };
@@ -292,6 +292,11 @@ export type AggregatedSitesDatum = {
   aggregatedYield: number;
   lat: number;
   lng: number;
+  // Searchable fields for filtering
+  dnoId?: string; // Extracted from dno JSON
+  gspId?: string; // Extracted from gsp JSON
+  clientSiteId?: string; // From client_site_id
+  clientSiteName?: string; // From client_site_name
 };
 
 export type AggregatedSitesDataGroupMap = Map<string, AggregatedSitesDatum>;

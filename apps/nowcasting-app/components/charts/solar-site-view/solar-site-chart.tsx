@@ -26,6 +26,7 @@ import ForecastHeaderSite from "./forecast-header";
 import DataLoadingChartStatus from "../DataLoadingChartStatus";
 import Link from "next/link";
 import LegendItem from "../LegendItem";
+import SitesSearchInput from "./search-input";
 
 const SolarSiteChart: FC<{
   combinedSitesData: CombinedSitesData;
@@ -323,67 +324,78 @@ const SolarSiteChart: FC<{
           </div>
         )}
 
-        <div className="flex-1 flex flex-col relative">
-          <AggregatedDataTable
-            className={`absolute inset-0 overflow-y-scroll mb-12 ${
-              currentAggregation(AGGREGATION_LEVELS.NATIONAL) ? "z-10" : "z-0 opacity-0"
-            }`}
-            title={"National"}
-            tableData={Array.from(aggregatedSitesData.national.values())}
-          />
-          <AggregatedDataTable
-            className={`absolute inset-0 overflow-y-scroll mb-12 ${
-              currentAggregation(AGGREGATION_LEVELS.REGION) ? "z-10" : "z-0 opacity-0"
-            }`}
-            title={"Region"}
-            tableData={Array.from(aggregatedSitesData.regions.values())}
-          />
-          <AggregatedDataTable
-            className={`absolute inset-0 overflow-y-scroll mb-12 ${
-              currentAggregation(AGGREGATION_LEVELS.GSP) ? "z-10" : "z-0 opacity-0"
-            }`}
-            title={"GSP"}
-            tableData={Array.from(aggregatedSitesData.gsps.values())}
-          />
-          <AggregatedDataTable
-            className={`absolute inset-0 overflow-y-scroll mb-12 ${
-              currentAggregation(AGGREGATION_LEVELS.SITE) ? "z-10" : "z-0 opacity-0"
-            }`}
-            title={"Sites"}
-            tableData={Array.from(aggregatedSitesData.sites.values())}
-          />
-        </div>
-      </div>
-      <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-none justify-between align-items:baseline px-4 text-xs tracking-wider text-ocf-gray-300 py-3 bg-mapbox-black-500 overflow-y-visible">
-        <div
-          className={`flex flex-col lg:flex-row flex-initial gap-x-6 justify-around max-w-2xl overflow-x-auto`}
-        >
-          <LegendItem
-            iconClasses={"text-ocf-black"}
-            label={"PV Actual"}
-            dataKey={`GENERATION_UPDATED`}
-          />
-          <LegendItem
-            iconClasses={"text-ocf-yellow"}
-            dashStyle={"both"}
-            label={"OCF Forecast"}
-            dataKey={`FORECAST`}
-          />
-        </div>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Search Input */}
+          <div className="px-10 pt-4 pb-2 bg-mapbox-black-500 z-20 relative">
+            <SitesSearchInput
+              placeholder="Search sites by name, DNO, GSP, or Client ID..."
+              className="max-w-md"
+            />
+          </div>
 
-        <div className="flex-initial flex self-center items-start">
-          <Tooltip
-            tip={
-              <div className="w-64 rounded-md">
-                <ChartInfo />
-              </div>
-            }
-            position="top"
-            className={"text-right"}
-            fullWidth
+          {/* Tables Container */}
+          <div className="flex-1 relative">
+            <AggregatedDataTable
+              className={`absolute inset-0 overflow-y-scroll ${
+                currentAggregation(AGGREGATION_LEVELS.NATIONAL) ? "z-10" : "z-0 opacity-0"
+              }`}
+              title={"National"}
+              tableData={Array.from(aggregatedSitesData.national.values())}
+            />
+            <AggregatedDataTable
+              className={`absolute inset-0 overflow-y-scroll ${
+                currentAggregation(AGGREGATION_LEVELS.REGION) ? "z-10" : "z-0 opacity-0"
+              }`}
+              title={"Region"}
+              tableData={Array.from(aggregatedSitesData.regions.values())}
+            />
+            <AggregatedDataTable
+              className={`absolute inset-0 overflow-y-scroll ${
+                currentAggregation(AGGREGATION_LEVELS.GSP) ? "z-10" : "z-0 opacity-0"
+              }`}
+              title={"GSP"}
+              tableData={Array.from(aggregatedSitesData.gsps.values())}
+            />
+            <AggregatedDataTable
+              className={`absolute inset-0 overflow-y-scroll ${
+                currentAggregation(AGGREGATION_LEVELS.SITE) ? "z-10" : "z-0 opacity-0"
+              }`}
+              title={"Sites"}
+              tableData={Array.from(aggregatedSitesData.sites.values())}
+            />
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-none justify-between align-items:baseline px-4 text-xs tracking-wider text-ocf-gray-300 py-3 bg-mapbox-black-500 overflow-y-visible">
+          <div
+            className={`flex flex-col lg:flex-row flex-initial gap-x-6 justify-around max-w-2xl overflow-x-auto`}
           >
-            <InfoIcon />
-          </Tooltip>
+            <LegendItem
+              iconClasses={"text-ocf-black"}
+              label={"PV Actual"}
+              dataKey={`GENERATION_UPDATED`}
+            />
+            <LegendItem
+              iconClasses={"text-ocf-yellow"}
+              dashStyle={"both"}
+              label={"OCF Forecast"}
+              dataKey={`FORECAST`}
+            />
+          </div>
+
+          <div className="flex-initial flex self-center items-start">
+            <Tooltip
+              tip={
+                <div className="w-64 rounded-md">
+                  <ChartInfo />
+                </div>
+              }
+              position="top"
+              className={"text-right"}
+              fullWidth
+            >
+              <InfoIcon />
+            </Tooltip>
+          </div>
         </div>
       </div>
     </div>

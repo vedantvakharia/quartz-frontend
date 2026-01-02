@@ -70,6 +70,8 @@ export type GlobalStateType = {
   showConstraints: boolean;
   dashboardMode: boolean;
   sortBy: SORT_BY;
+  sortDirection: "asc" | "desc";
+  sitesSearchTerm: string;
   autoZoom: boolean;
   globalChartIsZooming: boolean;
   globalChartIsZoomed: boolean;
@@ -108,7 +110,9 @@ export const { useGlobalState, getGlobalState, setGlobalState } =
     globalZoomArea: { x1: "", x2: "" },
     showSiteCount: undefined,
     aggregationLevel: AGGREGATION_LEVELS.REGION,
-    sortBy: SORT_BY.CAPACITY,
+    sortBy: SORT_BY.YIELD,
+    sortDirection: "desc",
+    sitesSearchTerm: "",
     showNHourView: false,
     showConstraints: getBooleanSettingFromCookieStorage(CookieStorageKeys.CONSTRAINTS),
     dashboardMode: getBooleanSettingFromCookieStorage(CookieStorageKeys.DASHBOARD_MODE),

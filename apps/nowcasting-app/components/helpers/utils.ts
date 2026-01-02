@@ -166,20 +166,25 @@ export const getSitesLoadingState = (
   let initialLoadComplete = Object.values(combinedLoading).every((loading) => !loading);
   let showMessage = false;
   let message = "Loading initial data";
+
+  // If we have data (from API or mock), don't show error messages
+  const hasData = !!combinedData.allSitesData && combinedData.allSitesData.length > 0;
+
   if (initialLoadComplete) {
     if (combinedValidating.allSitesValidating) {
       message = "Loading sites";
-      showMessage = true;
+      showMessage = !hasData; // Don't show if we already have data
     }
     if (combinedValidating.sitePvActualValidating) {
       message = showMessage ? "Loading latest data" : "Loading sites PV Actual";
-      showMessage = true;
+      showMessage = !hasData;
     }
     if (combinedValidating.sitePvForecastValidating) {
       message = showMessage ? "Loading latest data" : "Loading sites PV Forecast";
-      showMessage = true;
+      showMessage = !hasData;
     }
   }
+
   const endpointStates: SitesEndpointStates = {
     type: "sites",
     allSites: {
