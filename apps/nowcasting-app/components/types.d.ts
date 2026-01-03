@@ -101,9 +101,9 @@ type CombinedData = {
   // TODO: slight mashup of custom and generated types atm,
   //  ideally should be able to use just the generated for API typings
   allGspForecastData:
-  | GspAllForecastData
-  | components["schemas"]["OneDatetimeManyForecastValues"][]
-  | undefined;
+    | GspAllForecastData
+    | components["schemas"]["OneDatetimeManyForecastValues"][]
+    | undefined;
   allGspRealData: AllGspRealData | components["schemas"]["GSPYieldGroupByDatetime"][] | undefined;
   gspDeltas: Map<string, GspDeltaValue> | undefined;
 };

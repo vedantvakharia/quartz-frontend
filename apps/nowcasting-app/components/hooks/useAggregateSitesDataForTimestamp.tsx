@@ -117,6 +117,11 @@ export const useAggregateSitesDataForTimestamp = (
       // site level
       const siteName = site.client_site_name || site.client_site_id || site.site_uuid;
       const siteId = site.site_uuid;
+
+      // Extract searchable IDs from JSON fields
+      const dnoId = extractIdFromJsonString(site.dno, "dno_id");
+      const gspId = extractIdFromJsonString(site.gsp, "gsp_id");
+
       let updatedSiteData = sitesTableData.sites.get(siteId) || {
         id: site.site_uuid,
         label: siteName,
@@ -125,7 +130,12 @@ export const useAggregateSitesDataForTimestamp = (
         expectedPV: 0,
         aggregatedYield: 0,
         lat: 0,
-        lng: 0
+        lng: 0,
+        // Searchable fields for filtering
+        dnoId: dnoId,
+        gspId: gspId,
+        clientSiteId: site.client_site_id,
+        clientSiteName: site.client_site_name
       };
       updatedSiteData.capacity += siteCapacity;
       updatedSiteData.actualPV += siteActualPV;
@@ -242,5 +252,10 @@ export const useAggregateSitesDataForTimestamp = (
       }
     }
     return sitesTableData;
-  }, [firstForecastData, selectedISOTime]);
+  }, [
+    combinedSitesData.allSitesData,
+    combinedSitesData.sitesPvActualData,
+    combinedSitesData.sitesPvForecastData,
+    selectedISOTime
+  ]);
 };

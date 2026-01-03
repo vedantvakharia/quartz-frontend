@@ -59,6 +59,7 @@ import {
   getFurthestForecastTimestamp
 } from "../components/helpers/data";
 import { DateTime } from "luxon";
+import { mockSites, mockForecastData, mockActualData } from "../components/helpers/mockSitesData";
 
 export default function Home({ dashboardModeServer }: { dashboardModeServer: string }) {
   useAndUpdateSelectedTime();
@@ -126,7 +127,7 @@ export default function Home({ dashboardModeServer }: { dashboardModeServer: str
     if (view === VIEWS.DELTA) {
       setNationalAggregationLevel(NationalAggregation.GSP);
     }
-  }, [view]);
+  }, [view, nationalAggregationLevel, setClickedGspId, setNationalAggregationLevel]);
 
   const currentView = (v: VIEWS) => v === view;
 
@@ -157,7 +158,7 @@ export default function Home({ dashboardModeServer }: { dashboardModeServer: str
       console.log("-- -- -- resizing map");
       map.resize();
     });
-  }, [combinedDashboardModeActive]);
+  }, [combinedDashboardModeActive, maps]);
 
   useEffect(() => {
     maps.forEach((map, index) => {
@@ -170,7 +171,7 @@ export default function Home({ dashboardModeServer }: { dashboardModeServer: str
         map.setZoom(zoom);
       }
     });
-  }, [lat, lng, zoom]);
+  }, [lat, lng, zoom, maps, view]);
 
   const forecastFrom = getEarliestForecastTimestamp();
   const forecastTo = getFurthestForecastTimestamp();
@@ -633,10 +634,20 @@ export default function Home({ dashboardModeServer }: { dashboardModeServer: str
       return false;
     }
   });
-  const slicedSitesData = useMemo(
-    () => allSitesData?.site_list.slice(0, 100) || [],
-    [allSitesData]
-  );
+  // Fallback to mock data in development mode when API fails
+  const slicedSitesData = useMemo(() => {
+    // If API has data, use it
+    if (allSitesData?.site_list) {
+      return allSitesData.site_list.slice(0, 100);
+    }
+    // If API failed and we're in dev mode, use mock data
+    if (process.env.NEXT_PUBLIC_DEV_MODE === "true" && allSitesError) {
+      console.log("Using mock sites data (API failed)");
+      return mockSites;
+    }
+    // Otherwise, return empty array
+    return [];
+  }, [allSitesData, allSitesError]);
   const siteUuids = slicedSitesData.map((site) => site.site_uuid);
   const siteUuidsString = siteUuids?.join(",") || "";
   const {
@@ -679,14 +690,30 @@ export default function Home({ dashboardModeServer }: { dashboardModeServer: str
 
   const sitesData: CombinedSitesData = {
     allSitesData: slicedSitesData,
-    sitesPvForecastData: useMemo(
-      () => sitePvForecastData?.filter((d): d is SitePvForecast => !!d) || [],
-      [sitePvForecastData]
-    ),
-    sitesPvActualData: useMemo(
-      () => sitesPvActualData?.filter((d): d is SitePvActual => !!d) || [],
-      [sitesPvActualData]
-    )
+    sitesPvForecastData: useMemo(() => {
+      // If API has data, use it
+      if (sitePvForecastData) {
+        return sitePvForecastData.filter((d): d is SitePvForecast => !!d);
+      }
+      // If API failed and we're in dev mode, use mock forecast data
+      if (process.env.NEXT_PUBLIC_DEV_MODE === "true" && sitePvForecastError) {
+        console.log("Using mock forecast data (API failed)");
+        return mockForecastData;
+      }
+      return [];
+    }, [sitePvForecastData, sitePvForecastError]),
+    sitesPvActualData: useMemo(() => {
+      // If API has data, use it
+      if (sitesPvActualData) {
+        return sitesPvActualData.filter((d): d is SitePvActual => !!d);
+      }
+      // If API failed and we're in dev mode, use mock actual data
+      if (process.env.NEXT_PUBLIC_DEV_MODE === "true" && sitePvActualError) {
+        console.log("Using mock actual data (API failed)");
+        return mockActualData;
+      }
+      return [];
+    }, [sitesPvActualData, sitePvActualError])
   };
 
   const sitesCombinedLoading = useMemo(
@@ -721,7 +748,7 @@ export default function Home({ dashboardModeServer }: { dashboardModeServer: str
     setLoadingState(
       computeLoadingState(combinedLoading, combinedValidating, combinedErrors, combinedData)
     );
-  }, [combinedLoading, combinedValidating, combinedErrorsLength, setLoadingState]);
+  }, [combinedLoading, combinedValidating, combinedErrors, setLoadingState, combinedData]);
 
   const sitesCombinedErrorsLength = Object.values(sitesCombinedErrors).filter((e) => !!e).length;
 
@@ -738,7 +765,8 @@ export default function Home({ dashboardModeServer }: { dashboardModeServer: str
   }, [
     sitesCombinedLoading,
     sitesCombinedValidating,
-    sitesCombinedErrorsLength,
+    sitesCombinedErrors,
+    sitesData,
     setSitesLoadingState
   ]);
 

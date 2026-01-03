@@ -79,21 +79,20 @@ export const mockSites = [
   }
 ];
 
+// Use a fixed base timestamp to prevent hydration errors
+// This ensures server and client render the same timestamps
+const FIXED_BASE_TIME = new Date("2024-01-15T12:00:00Z").getTime();
+
 export const mockForecastData = mockSites.flatMap((site, siteIndex) => ({
   site_uuid: site.site_uuid,
   forecast_uuid: `forecast-${site.site_uuid}`,
-  forecast_creation_datetime: new Date().toISOString(),
+  forecast_creation_datetime: new Date(FIXED_BASE_TIME).toISOString(),
   forecast_version: "1.0",
   forecast_values: Array.from({ length: 48 }, (_, i) => {
-    // Start from the last 30-minute interval (rounded down)
-    const now = new Date();
-    const roundedMinutes = Math.floor(now.getMinutes() / 30) * 30;
-    now.setMinutes(roundedMinutes, 0, 0);
+    // Create timestamps at 30-minute intervals (24 back, 24 forward from base time)
+    const targetTime = new Date(FIXED_BASE_TIME + (i - 24) * 30 * 60 * 1000);
 
-    // Create timestamps at 30-minute intervals (24 back, 24 forward)
-    const targetTime = new Date(now.getTime() + (i - 24) * 30 * 60 * 1000);
-
-    // Use deterministic values instead of Math.random() to avoid hydration errors
+    // Use deterministic values to avoid hydration errors
     // Generate values between 5-70% of capacity based on site and time index
     const generationFactor = 0.05 + ((siteIndex * 7 + i * 3) % 65) / 100;
 
@@ -107,15 +106,10 @@ export const mockForecastData = mockSites.flatMap((site, siteIndex) => ({
 export const mockActualData = mockSites.map((site, siteIndex) => ({
   site_uuid: site.site_uuid,
   pv_actual_values: Array.from({ length: 48 }, (_, i) => {
-    // Start from the last 30-minute interval (rounded down)
-    const now = new Date();
-    const roundedMinutes = Math.floor(now.getMinutes() / 30) * 30;
-    now.setMinutes(roundedMinutes, 0, 0);
+    // Create timestamps at 30-minute intervals going back from base time
+    const datetime = new Date(FIXED_BASE_TIME - (48 - i) * 30 * 60 * 1000);
 
-    // Create timestamps at 30-minute intervals going back
-    const datetime = new Date(now.getTime() - (48 - i) * 30 * 60 * 1000);
-
-    // Use deterministic values instead of Math.random() to avoid hydration errors
+    // Use deterministic values to avoid hydration errors
     // Generate values between 5-60% of capacity based on site and time index
     const generationFactor = 0.05 + ((siteIndex * 5 + i * 2) % 55) / 100;
 
